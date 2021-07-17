@@ -2,20 +2,96 @@
 
 import inspect, sys
 
-if len(sys.argv) < 2 or "h" in sys.argv[1]:
+jelly_codepage  = """¡¢£¤¥¦©¬®µ½¿€ÆÇÐÑ×ØŒÞßæçðıȷñ÷øœþ"""
+jelly_codepage += """ !"#$%&'()*+,-./0123456789:;<=>?"""
+jelly_codepage += """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_"""
+jelly_codepage += """`abcdefghijklmnopqrstuvwxyz{|}~¶"""
+jelly_codepage += """°¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ƁƇƊƑƓƘⱮƝƤƬƲȤɓƈɗƒɠ"""
+jelly_codepage += """ɦƙɱɲƥʠɼʂƭʋȥẠḄḌẸḤỊḲḶṂṆỌṚṢṬỤṾẈỴẒȦḂ"""
+jelly_codepage += """ĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻạḅḍẹḥịḳḷṃṇọṛṣ"""
+jelly_codepage += """ṭ§Äẉỵẓȧḃċḋėḟġḣŀṁṅȯṗṙṡṫẇẋẏż«»‘’“”"""
+
+def show_usage():
     raise SystemExit(inspect.cleandoc("""
-        --------------------
+    --------------------
 
-        USAGE:
+    USAGE:
 
-          avl <flags> <code> [args...]
+    avl <flags> <code> [args...]
 
-          f    Read the code from the file specified in the code argument.
-          e    Execute the code as given in the code argument.
-          b    Read the code as raw bytes.
-          j    Read the code as Jelly's code-page.
+    h    Display this help message and exit.
 
-        --------------------
+    b    Read the code as raw bytes.
+    j    Read the code as Jelly's code-page.
+    p    Unpack the code before executing.
+    s    Strip trailing newlines if present.
+
+    c    Output transpiled code.
+
+    --------------------
     """))
 
+def decompress(number):
+    translated = ""
+    while number:
+        number, digit = divmod(number, 96)
+        if digit == 0:
+            translated += "\n"
+        else:
+            translated += chr(digit + 31)
+    return translated
+
+if len(sys.argv) < 3 or "h" in sys.argv[1]:
+    show_usage()
+
 flags = sys.argv[1]
+
+if ("b" in flags) and ("j" in flags):
+    show_usage()
+
+if "b" in flags:
+    try:
+        with open(sys.argv[2], "rb") as f:
+            code = f.read()
+    except:
+        raise SystemExit(f"Error reading file: `{sys.argv[2]}`")
+else:
+    try:
+        with open(sys.argv[2], "r") as f:
+            code = f.read()
+    except:
+        raise SystemExit(f"Error reading file: `{sys.argv[2]}`")
+
+if isinstance(code, str):
+    if "s" in flags:
+        code = code.rstrip("\r\f\n")
+else:
+    if "s" in flags:
+        while code and code[-1] in b"\r\f\n":
+            code = code[:-1]
+
+if "j" in flags:
+    code = code.replace("\n", "¶") \
+               .replace("ụ", "§")  \
+               .replace("ṿ", "Ä")
+    fail_chars = set(code) - set(jelly_codepage)
+    if fail_chars:
+        raise SystemExit("The following characters are not in Jelly's " \
+                         "code-page: " f"`{''.join(sorted(fail_chars))}`")
+    code = bytes(map(jelly_codepage.index, code))
+
+if "p" in flags:
+    if isinstance(code, str):
+        number = 0
+        for char in code:
+            number *= 0x8000
+            number += ord(char) + 1
+        code = decompress(number)
+    else:
+        number = 0
+        for byte in code:
+            number *= 256
+            number += byte + 1
+        code = decompress(number)
+elif isinstance(code, bytes):
+    code = code.decode("utf-8")

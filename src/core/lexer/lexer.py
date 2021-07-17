@@ -96,6 +96,19 @@ def lex(code):
 
             yield Token("string", (postprocess, state), \
                     start, min(index, len(code))))
+        elif "a" <= code[index] <= "z" or "A" <= code[index] <= "Z":
+            state = code[index]
+            start = index
+            index += 1
+
+            while index < len(code) and "a" <= code[index] <= "z" \
+                    or "A" <= code[index] <= "Z" or code[index] == "_" \
+                    and index + 1 < len(code) and ("a" <= code[index + 1] <= z \
+                    or "A" <= code[index + 1] <= "Z"):
+                state += code[index]
+                index += 1
+
+            yield Token("identifier", state, start, index)
         else:
             yield Token("unknown", code[index], index, index + 1)
             index += 1
