@@ -1,4 +1,4 @@
-from token import Token
+from .token import Token
 
 STRING_ESCAPES = {
     "`": "`",
@@ -44,8 +44,12 @@ def lex(code):
                     allow_decimal = False
                 elif code[index] in "eboxEBOX" and allow_base:
                     allow_base = False
+                    allow_decimal = True
                 elif code[index] in "ij" and allow_complex:
                     allow_complex = False
+                    allow_negative = True
+                    allow_decimal = True
+                    allow_base = True
                 else:
                     break
                 state += code[index]
@@ -95,16 +99,17 @@ def lex(code):
                 index += 1
 
             yield Token("string", (postprocess, state), \
-                    start, min(index, len(code))))
+                    start, min(index, len(code)))
         elif "a" <= code[index] <= "z" or "A" <= code[index] <= "Z":
             state = code[index]
             start = index
             index += 1
 
-            while index < len(code) and "a" <= code[index] <= "z" \
-                    or "A" <= code[index] <= "Z" or code[index] == "_" \
-                    and index + 1 < len(code) and ("a" <= code[index + 1] <= z \
-                    or "A" <= code[index + 1] <= "Z"):
+            while index < len(code) and ("a" <= code[index] <= "z" \
+                    or "A" <= code[index] <= "Z" or "0" <= code[index] <= "9" \
+                    or code[index] == "_" and index + 1 < len(code) \
+                    and ("a" <= code[index + 1] <= z \
+                    or "A" <= code[index + 1] <= "Z")):
                 state += code[index]
                 index += 1
 

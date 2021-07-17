@@ -95,3 +95,10 @@ if "p" in flags:
         code = decompress(number)
 elif isinstance(code, bytes):
     code = code.decode("utf-8")
+
+################################################################################
+
+from src import lex
+
+for token in lex(code):
+    print(token)
