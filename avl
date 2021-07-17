@@ -1,5 +1,12 @@
 #!/bin/python3
 
-import sys
+import inspect, sys
+
+if len(sys.argv) < 2 or "h" in sys.argv[1]:
+    raise SystemExit(inspect.cleandoc("""
+
+        avl <flags> <file> [args...]
+
+    """))
 
 flags = sys.argv[1]
