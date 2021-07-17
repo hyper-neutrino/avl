@@ -4,8 +4,7 @@ import inspect, sys
 
 if len(sys.argv) < 2 or "h" in sys.argv[1]:
     raise SystemExit(inspect.cleandoc("""
-
-        ====================
+        --------------------
 
         USAGE:
 
@@ -16,8 +15,7 @@ if len(sys.argv) < 2 or "h" in sys.argv[1]:
           b    Read the code as raw bytes.
           j    Read the code as Jelly's code-page.
 
-        ====================
-
+        --------------------
     """))
 
 flags = sys.argv[1]
