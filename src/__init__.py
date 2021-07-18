@@ -1,1 +1,1 @@
-from .core import lex
+from .core import lex, parse

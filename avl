@@ -98,7 +98,8 @@ elif isinstance(code, bytes):
 
 ################################################################################
 
-from src import lex
+from src import lex, parse
 
-for token in lex(code):
-    print(token)
+tokens = list(lex(code))
+
+print(parse(code, tokens))
