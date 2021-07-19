@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import inspect, sys
+import inspect, sympy, sys
 
 jelly_codepage  = """¡¢£¤¥¦©¬®µ½¿€ÆÇÐÑ×ØŒÞßæçðıȷñ÷øœþ"""
 jelly_codepage += """ !"#$%&'()*+,-./0123456789:;<=>?"""
@@ -100,6 +100,15 @@ elif isinstance(code, bytes):
 
 from src import lex, parse
 
-tokens = list(lex(code))
+arguments = []
 
-print(parse(code, tokens))
+for arg in sys.argv[3:]:
+    try:
+        arguments.append(eval(arg))
+    except:
+        arguments.append(arg)
+
+tokens = list(lex(code))
+parse_tree = parse(code, tokens, min(len(arguments), 2))
+
+print(parse_tree)

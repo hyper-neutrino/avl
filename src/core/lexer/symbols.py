@@ -1,5 +1,13 @@
 def is_identifier(char):
-    return not (" " <= char <= "@" or "[" <= char <= "`" or "{" <= char <= "~")
+    if char in "\r\f\n":
+        return False
+    if " " <= char <= "@":
+        return False
+    if "[" <= char <= "`":
+        return False
+    if "{" <= char <= "~":
+        return False
+    return True
 
 syms = """!"#$%&'()*+,-/:;<=>?@[\]^`{|}~"""
 
